@@ -4,12 +4,15 @@ import { ApiOkResponse, ApiOperation, ApiParam, ApiResponse, ApiTags, getSchemaP
 import { EventDto } from "./dto/event.dto";
 import { IdParam } from "./dto/idparam";
 import { IpAddress } from "./decorators/ipAddress";
+import { RealIP } from "nestjs-real-ip";
+import { FilterParam } from "./dto/filterParam";
 
-@ApiTags('events')
-// @ApiCookieAuth()
+
 @Controller()
 export class EventController {
   constructor(private readonly service: EventService) {}
+
+  @ApiTags('events')
   @ApiParam({ name: 'id', type: 'string' })
   @ApiOperation({
     summary:"Get event by event ID",
@@ -28,6 +31,7 @@ export class EventController {
       return this.service.getById(param.id);
   }
 
+  @ApiTags('events')
   @ApiOperation({
     summary:"Get all events",
   })
@@ -37,12 +41,11 @@ export class EventController {
     type: EventDto
   })
   @Get('/api/events')
-  // @UseGuards(new AuthGuard())
   async getAll() {
       return this.service.getAll();
     }
 
-
+  @ApiTags('events')
   @ApiOperation({
     summary:"Create a new event",
   })
@@ -56,11 +59,11 @@ export class EventController {
     description: 'Bad request'
   })
   @Post('/api/users')
-  // @UseGuards(new AuthGuard())
-  async add(@Body() body: EventDto, @IpAddress() ipAddress) {
-      return this.service.add(body, ipAddress);
+  async add(@Body() body: EventDto, @RealIP() ip: string) {
+      return this.service.add(body, ip);
     }
 
+  @ApiTags('events')
   @ApiParam({ name: 'id', type: 'string' })
   @ApiOperation({
     summary:"Delete event by event ID",
@@ -77,9 +80,84 @@ export class EventController {
     status: 404,
     description: 'Event not found'
   })
-  @Delete('/api/users/:id')
-  // @UseGuards(new AuthGuard())
+  @Delete('/api/events/:id')
   async delete(@Param() param: IdParam) {
       return this.service.delete(param.id);
+  }
+
+
+  // FILTERS
+
+
+  @ApiTags('filters')
+  @ApiOperation({
+    summary:"Get events filtered by date/title",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Events successfully received',
+    type: EventDto
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Events not found'
+  })
+  @Post('/api/events/filtered')
+  async getEventsFiltered(@Body() body: FilterParam) {
+    return this.service.getFiltered(body);
+  }
+
+  @ApiTags('filters')
+  @ApiOperation({
+    summary:"Get events filtered by date with events counter",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Events successfully received',
+    type: EventDto
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Events not found'
+  })
+  @Post('/api/events/filtered/eventsCounter')
+  async getEventsFilteredWithEventsCounter(@Body() body: FilterParam) {
+    return this.service.getFilteredWithEventsCounter(body);
+  }
+
+  @ApiTags('filters')
+  @ApiOperation({
+    summary:"Get events filtered by date/title with ip counter",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Events successfully received',
+    type: EventDto
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Events not found'
+  })
+  @Post('/api/events/filtered/ipCounter')
+  async getEventsFilteredWithUserIpCounter(@Body() body: FilterParam) {
+    return this.service.getFilteredWithIpCounter(body);
+  }
+
+  @ApiTags('filters')
+  @ApiOperation({
+    summary:"Get events filtered by date/title with user status counter",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Events successfully received',
+    type: EventDto
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Events not found'
+  })
+  @Post('/api/events/filtered/statusCounter')
+  async getEventsFilteredWithUserStatusCounter(@Body() body: FilterParam) {
+    return this.service.getFilteredWithStatusCounter(body);
   }
 }

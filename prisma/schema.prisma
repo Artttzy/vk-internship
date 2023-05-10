@@ -15,5 +15,5 @@ model Event {
   title       String
   status      Boolean
   ip    String
-  date   DateTime @default(now())
+  date   DateTime @default(now()) @db.Date
 }
