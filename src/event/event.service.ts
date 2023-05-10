@@ -70,58 +70,100 @@ export class EventService {
     return event;
   }
 
-  async getFilteredWithEventsCounter(body: FilterParam) {
+  async getEventsCounter(body: FilterParam) {
     let date = new Date(body.date);
     const events = await prisma.event.findMany({
+      select: {
+        title: true,
+      },
       where: {
         date: date
       },
+      distinct: ['title']
     })
     if (!events) {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
-
-    events.forEach((event) =>  async function(){
+    let titles = []
+    events.forEach((event) => {
+      titles.push(event.title)
+    });
+    let counts = []
+    for (const title of titles) {
       const count = await prisma.event.count({
         where: {
-          title: event.title
+          title: title
         },
       })
+      const obj = {title: title, count: count};
+      counts.push(obj);
+    };
+    let obj = {};
+    counts.forEach(item => obj[item.title] = item.count);
+    return JSON.stringify(obj);
+  }
 
+  async getIpCounter(body: FilterParam) {
+    let title = body.title;
+    let date = new Date(body.date);
+    const events = await prisma.event.findMany({
+      select: {
+        ip: true,
+      },
+      where: {
+        date: date,
+        title: title
+      },
+      distinct: ['ip']
+    })
+    if (!events) {
+      throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
+    }
+    let ips = []
+    events.forEach((event) => {
+      ips.push(event.ip)
     });
-
-    return events;
+    let counts = []
+    for (const ip of ips) {
+      const count = await prisma.event.count({
+        where: {
+          ip: ip
+        },
+      })
+      const obj = {ip: ip, count: count};
+      counts.push(obj);
+    };
+    let obj = {};
+    counts.forEach(item => obj[item.ip] = item.count);
+    return JSON.stringify(obj);
   }
 
-  async getFilteredWithIpCounter(body: FilterParam) {
+  async getStatusCounter(body: FilterParam) {
     let title = body.title;
     let date = new Date(body.date);
-    const event = await prisma.event.findMany({
+
+    let counts = []
+    const count1 = await prisma.event.count({
+        where: {
+          title: title,
+          date: date,
+          status: true
+        },
+    });
+    const obj1 = { status: "authorized", count: count1 };
+    counts.push(obj1);
+    const count0 = await prisma.event.count({
       where: {
-        title : title,
-        date: date
+        title: title,
+        date: date,
+        status: false
       },
     })
+    const obj0 = { status: "unauthorized", count: count0 };
+    counts.push(obj0);
 
-    if (!event) {
-      throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
-    }
-    return event;
-  }
-
-  async getFilteredWithStatusCounter(body: FilterParam) {
-    let title = body.title;
-    let date = new Date(body.date);
-    const event = await prisma.event.findMany({
-      where: {
-        title : title,
-        date: date
-      },
-    })
-
-    if (!event) {
-      throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
-    }
-    return event;
+    let obj = {};
+    counts.forEach(item => obj[item.status] = item.count);
+    return JSON.stringify(obj);
   }
 }

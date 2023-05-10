@@ -109,7 +109,7 @@ export class EventController {
 
   @ApiTags('filters')
   @ApiOperation({
-    summary:"Get events filtered by date with events counter",
+    summary:"Get events counter",
   })
   @ApiResponse({
     status: 200,
@@ -121,13 +121,13 @@ export class EventController {
     description: 'Events not found'
   })
   @Post('/api/events/filtered/eventsCounter')
-  async getEventsFilteredWithEventsCounter(@Body() body: FilterParam) {
-    return this.service.getFilteredWithEventsCounter(body);
+  async getEventsCounter(@Body() body: FilterParam) {
+    return this.service.getEventsCounter(body);
   }
 
   @ApiTags('filters')
   @ApiOperation({
-    summary:"Get events filtered by date/title with ip counter",
+    summary:"Get ip counter",
   })
   @ApiResponse({
     status: 200,
@@ -139,13 +139,13 @@ export class EventController {
     description: 'Events not found'
   })
   @Post('/api/events/filtered/ipCounter')
-  async getEventsFilteredWithUserIpCounter(@Body() body: FilterParam) {
-    return this.service.getFilteredWithIpCounter(body);
+  async getIpCounter(@Body() body: FilterParam) {
+    return this.service.getIpCounter(body);
   }
 
   @ApiTags('filters')
   @ApiOperation({
-    summary:"Get events filtered by date/title with user status counter",
+    summary:"Get status counter",
   })
   @ApiResponse({
     status: 200,
@@ -157,7 +157,7 @@ export class EventController {
     description: 'Events not found'
   })
   @Post('/api/events/filtered/statusCounter')
-  async getEventsFilteredWithUserStatusCounter(@Body() body: FilterParam) {
-    return this.service.getFilteredWithStatusCounter(body);
+  async getStatusCounter(@Body() body: FilterParam) {
+    return this.service.getStatusCounter(body);
   }
 }
